@@ -55,8 +55,10 @@ Các bước đóng góp:
 
 5. Tạo Pull Request trên GitHub.
 # 📄 License
-Dự án này được cấp phép theo MIT License.
+Dự án này được cấp phép theo [MIT License](LICENSE).
+
 # 📸 Hình ảnh minh họa
+![Ảnh minh họa](https://via.placeholder.com/800x400?text=Demo+Qu%E1%BA%A3n+L%C3%BD+Nh%C3%A2n+S%E1%BB%B1)
 # 📞 Liên hệ
 Nếu bạn có câu hỏi hoặc góp ý, hãy liên hệ:
 
@@ -64,5 +66,5 @@ Email: nguyencaotruong911@gmail.com
 
 GitHub: [https://github.com/username](https://github.com/NCT29032005)
 
-
+> Cảm ơn bạn đã quan tâm và sử dụng dự án! 🚀
 
