@@ -64,7 +64,7 @@ Nếu bạn có câu hỏi hoặc góp ý, hãy liên hệ:
 
 Email: nguyencaotruong911@gmail.com
 
-GitHub: [https://github.com/username](https://github.com/NCT29032005)
+GitHub: [https://github.com/NCT29032005](https://github.com/NCT29032005)
 
 > Cảm ơn bạn đã quan tâm và sử dụng dự án! 🚀
 
