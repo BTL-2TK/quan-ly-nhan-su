@@ -102,7 +102,7 @@ public class AttendancePanel extends JPanel {
         cbYear.addActionListener(reloadCal);
 
         // Sự kiện chọn nhân viên
-        employeeTable.getSelectionModel().addListSelectionListener(e -> {
+        employeeTable.getSelectionModel().addListSelectionListener(_ -> {
             int row = employeeTable.getSelectedRow();
             if (row >= 0) {
                 selectedRow = row;
