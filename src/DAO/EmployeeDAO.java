@@ -12,7 +12,7 @@ public class EmployeeDAO {
 
     public List<Employee> getAllEmployees() {
         List<Employee> list = new ArrayList<>();
-        String sql = "SELECT * FROM Employees"; // Đổi tên bảng phù hợp DB của bạn
+        String sql = "SELECT * FROM Employees";
 
         try (Connection conn = DatabaseUtils.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -48,6 +48,11 @@ public class EmployeeDAO {
     }
 
     public boolean insertEmployee(Employee employee) {
+        // Kiểm tra mã nhân viên đã tồn tại chưa
+        if (isEmployeeCodeExists(employee.getEmployeeCode())) {
+            System.err.println("EmployeeCode đã tồn tại: " + employee.getEmployeeCode());
+            return false;
+        }
         String sql = "INSERT INTO Employees(EmployeeCode, FirstName, LastName, Email, Phone, Address, BirthDate, Gender, IdNumber, DepartmentId, PositionId, HireDate, Status, AvatarPath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseUtils.getConnection();
@@ -92,6 +97,20 @@ public class EmployeeDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean isEmployeeCodeExists(String employeeCode) {
+        String sql = "SELECT COUNT(*) FROM Employees WHERE EmployeeCode = ?";
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, employeeCode);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private Employee mapResultSetToEmployee(ResultSet rs) throws SQLException {

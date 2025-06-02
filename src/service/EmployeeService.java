@@ -21,6 +21,11 @@ public class EmployeeService {
             System.err.println("Employee data is invalid.");
             return false;
         }
+        // Kiểm tra trùng mã nhân viên
+        if (employeeDAO.isEmployeeCodeExists(employee.getEmployeeCode())) {
+            System.err.println("EmployeeCode đã tồn tại: " + employee.getEmployeeCode());
+            return false;
+        }
         return employeeDAO.insertEmployee(employee);
     }
 

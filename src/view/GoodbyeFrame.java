@@ -29,7 +29,7 @@ public class GoodbyeFrame extends JFrame {
 
         JButton closeButton = new JButton("Đóng");
         closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        closeButton.addActionListener(e -> dispose());
+        closeButton.addActionListener(_ -> dispose());
 
         panel.add(Box.createVerticalStrut(30));
         panel.add(thankLabel);

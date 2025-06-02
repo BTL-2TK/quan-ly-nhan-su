@@ -166,7 +166,7 @@ public class RecruitmentPanel extends JPanel {
         loadApplicantsFromDatabase();
 
         // Sự kiện chọn mã tuyển dụng để lọc bảng
-        cbMaTuyenDung.addActionListener(e -> {
+        cbMaTuyenDung.addActionListener(_ -> {
             String selectedMaTD = (String) cbMaTuyenDung.getSelectedItem();
             TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableApplicants.getModel());
             if ("Tất cả".equals(selectedMaTD)) {
@@ -178,7 +178,7 @@ public class RecruitmentPanel extends JPanel {
         });
 
         // Sự kiện nút Tuyển
-        btnRecruit.addActionListener(e -> {
+        btnRecruit.addActionListener(_ -> {
             int row = tableApplicants.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một ứng viên!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -198,7 +198,7 @@ public class RecruitmentPanel extends JPanel {
         });
 
         // Sự kiện nút Xóa
-        btnDelete.addActionListener(e -> {
+        btnDelete.addActionListener(_ -> {
             int row = tableApplicants.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một ứng viên để xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -238,7 +238,6 @@ public class RecruitmentPanel extends JPanel {
         java.util.Set<String> maTDSet = new java.util.LinkedHashSet<>();
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
-             // Lỗi ở đây: Bảng 'UngVien' không tồn tại trong database của bạn
              ResultSet rs = stmt.executeQuery("SELECT MaTuyenDung, HoTen, SoDienThoai, Email, ChucVu, TrinhDo, MucLuongDeal, TrangThai FROM UngVien")) {
             while (rs.next()) {
                 Object[] row = new Object[8];
@@ -275,16 +274,8 @@ public class RecruitmentPanel extends JPanel {
 
 // Dialog tuyển ứng viên
 class CandidateRecruitDialog extends JDialog {
-    private Object[] info;
-    private int modelRow;
-    private DefaultTableModel model;
-    private JTable table;
     public CandidateRecruitDialog(Window owner, Object[] info, int modelRow, DefaultTableModel model, JTable table) {
         super(owner, "Tuyển ứng viên", ModalityType.APPLICATION_MODAL);
-        this.info = info;
-        this.modelRow = modelRow;
-        this.model = model;
-        this.table = table;
         setSize(900, 400);
         setLocationRelativeTo(owner);
         setResizable(false);
@@ -469,8 +460,8 @@ class CandidateRecruitDialog extends JDialog {
         btnPanel.add(btnCancel);
         btnPanel.add(btnSave);
 
-        btnCancel.addActionListener(e -> dispose());
-        btnSave.addActionListener(e -> {
+        btnCancel.addActionListener(_ -> dispose());
+        btnSave.addActionListener(_ -> {
             if (tfMaNV.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                 tfMaNV.requestFocus();

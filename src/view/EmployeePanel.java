@@ -4,6 +4,10 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import utils.DatabaseUtils;
 
 public class EmployeePanel extends JPanel {
     private JTable table;
@@ -89,8 +93,13 @@ public class EmployeePanel extends JPanel {
         btnAdd.setFocusPainted(false);
         filterPanel.add(btnAdd);
 
+        JButton btnRefresh = new JButton("Làm mới");
+        btnRefresh.setBackground(new Color(220, 220, 220));
+        btnRefresh.setFocusPainted(false);
+        filterPanel.add(btnRefresh);
+
         // Sự kiện nút Thêm: mở dialog nhập hồ sơ nhân viên (ngay trong file này)
-        btnAdd.addActionListener(e -> {
+        btnAdd.addActionListener(_ -> {
             JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(EmployeePanel.this), "Thêm hồ sơ nhân viên", Dialog.ModalityType.APPLICATION_MODAL);
             dialog.setSize(1050, 600);
             dialog.setLocationRelativeTo(EmployeePanel.this);
@@ -164,7 +173,7 @@ public class EmployeePanel extends JPanel {
             dialog.setContentPane(mainPanel);
 
             // Sự kiện nút Thay ảnh (chỉ demo, chưa lưu ảnh)
-            btnChangeAvatar.addActionListener(ev -> {
+            btnChangeAvatar.addActionListener(_ -> {
                 JFileChooser chooser = new JFileChooser();
                 int res = chooser.showOpenDialog(dialog);
                 if (res == JFileChooser.APPROVE_OPTION) {
@@ -175,13 +184,13 @@ public class EmployeePanel extends JPanel {
             });
 
             // Sự kiện nút Reset
-            btnReset.addActionListener(ev -> {
+            btnReset.addActionListener(_ -> {
                 for (JTextField field : fields) field.setText("");
                 avatarLabel.setIcon(new ImageIcon(new BufferedImage(120, 150, BufferedImage.TYPE_INT_ARGB)));
             });
 
             // Sự kiện nút Thêm (bạn tự xử lý lưu vào DB)
-            btnSave.addActionListener(ev -> {
+            btnSave.addActionListener(_ -> {
                 JOptionPane.showMessageDialog(dialog, "Đã thêm nhân viên (demo)!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose();
             });
@@ -193,18 +202,7 @@ public class EmployeePanel extends JPanel {
         String[] columns = {
             "STT", "Ảnh", "Nhân viên", "Giới tính", "Ngày sinh", "Địa chỉ", "Liên hệ", "Phòng ban", "Chức vụ", "Mức lương"
         };
-        Object[][] data = {
-            {"1", null, "<html><b>002 - Nguyễn Ngọc Huy</b><br>Nhân viên chính thức</html>", "Nam", "2003-09-10", "157/89 Nguyễn Văn Linh,...", "0121212445", "Phòng nhân sự", "Phó phòng", "18,375,000"},
-            {"2", null, "<html><b>003 - Trần Ngọc Thảo Ngân</b><br>Nhân viên chính thức</html>", "Nữ", "2003-06-09", "157/89 Khóm 1, An Phú,...", "0200986711", "Phòng nhân sự", "Trưởng phòng", "13,370,569"},
-            {"3", null, "<html><b>004 - Trương Thị Cẩm Tú</b><br>Nhân viên chính thức</html>", "Nữ", "2003-05-03", "157/89 Khóm 1, An Phú,...", "0121212445", "Phòng kinh doanh", "Phó phòng", "16,050,000"},
-            {"4", null, "<html><b>007 - Tăng Hồng Nguyên Dân</b><br>Nhân viên chính thức</html>", "Nam", "2003-06-06", "157/89 Dương Bá Trạc,...", "01414141414", "Phòng tuyển dụng", "Kĩ sư phần mềm", "8,000,000"},
-            {"5", null, "<html><b>008 - Hồ Đỗ Hoàng Khang</b><br>Nhân viên chính thức</html>", "Nam", "2003-03-02", "157/89 Khóm 1, Phú Hội,...", "0123123123", "Phòng kinh doanh", "Phó phòng", "16,050,000"},
-            {"6", null, "<html><b>009 - Đỗ Thị Cẩm Tiên</b><br>Nhân viên chính thức</html>", "Nữ", "2003-11-04", "12A Khóm 1, An Phú,...", "0121212445", "Phòng tuyển dụng", "Trưởng phòng", "10,500,000"},
-            {"7", null, "<html><b>014 - Nguyễn Thị Diễm My</b><br>Nhân viên chính thức</html>", "Nữ", "2003-01-23", "157/89 Dương Bá Trạc,...", "0121212445", "Phòng kinh doanh", "Digital Marketing", "12,600,000"},
-            {"8", null, "<html><b>016 - Nguyễn Thị Mỹ Nương</b><br>Nhân viên thử việc</html>", "Nữ", "2003-01-14", "90/A Nguyễn Thị Tú, Bình...", "01212121212", "Phòng nhân sự", "Chuyên viên đào tạo", "12,000,000"}
-        };
-
-        model = new DefaultTableModel(data, columns) {
+        model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
             @Override
@@ -223,38 +221,38 @@ public class EmployeePanel extends JPanel {
         table.setShowHorizontalLines(true);
         table.setFillsViewportHeight(true);
 
-        // Ảnh đại diện mặc định
-        Icon avatarIcon = new ImageIcon(new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB));
-        for (int i = 0; i < table.getRowCount(); i++) {
-            table.setValueAt(avatarIcon, i, 1);
-        }
+        // Không thêm dữ liệu mẫu vào model ở đây!
+        // Icon avatarIcon = new ImageIcon(new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB));
+        // for (int i = 0; i < table.getRowCount(); i++) {
+        //     table.setValueAt(avatarIcon, i, 1);
+        // }
 
         // Bộ lọc phòng ban, giới tính, độ tuổi, loại hình, mức lương, sắp xếp
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
 
         // Bộ lọc phòng ban, giới tính, độ tuổi, loại hình, mức lương
-        cbDepartment.addActionListener(e -> {
+        cbDepartment.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
-        cbGender.addActionListener(e -> {
+        cbGender.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
-        cbAge.addActionListener(e -> {
+        cbAge.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
-        cbType.addActionListener(e -> {
+        cbType.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
-        cbSalary.addActionListener(e -> {
+        cbSalary.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
 
         // Chỉ khi chọn cả trường sắp xếp và thứ tự thì mới sắp xếp
-        cbSortField.addActionListener(e -> {
+        cbSortField.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
-        cbSortOrder.addActionListener(e -> {
+        cbSortOrder.addActionListener(_ -> {
             applyFiltersAndSort(sorter, cbDepartment, cbGender, cbAge, cbType, cbSalary, cbSortField, cbSortOrder);
         });
 
@@ -268,109 +266,50 @@ public class EmployeePanel extends JPanel {
 
         add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+
+        // Load dữ liệu từ database
+        loadEmployeesFromDatabase();
     }
 
-    // Thêm hàm lọc kết hợp phòng ban, giới tính, độ tuổi, loại hình, mức lương
-    private void applyFilters(
-            TableRowSorter<TableModel> sorter,
-            JComboBox<String> cbDepartment,
-            JComboBox<String> cbGender,
-            JComboBox<String> cbAge,
-            JComboBox<String> cbType,
-            JComboBox<String> cbSalary
-    ) {
-        String selectedDept = (String) cbDepartment.getSelectedItem();
-        String selectedGender = (String) cbGender.getSelectedItem();
-        String selectedAge = (String) cbAge.getSelectedItem();
-        String selectedType = (String) cbType.getSelectedItem();
-        String selectedSalary = (String) cbSalary.getSelectedItem();
-
-        RowFilter<TableModel, Object> deptFilter = null;
-        RowFilter<TableModel, Object> genderFilter = null;
-        RowFilter<TableModel, Object> ageFilter = null;
-        RowFilter<TableModel, Object> typeFilter = null;
-        RowFilter<TableModel, Object> salaryFilter = null;
-
-        if (selectedDept != null && !selectedDept.equals("Phòng ban")) {
-            deptFilter = RowFilter.regexFilter("^" + java.util.regex.Pattern.quote(selectedDept) + "$", 7);
-        }
-        if (selectedGender != null && !selectedGender.equals("Giới tính")) {
-            genderFilter = RowFilter.regexFilter("^" + java.util.regex.Pattern.quote(selectedGender) + "$", 3);
-        }
-        if (selectedAge != null && !selectedAge.equals("Độ tuổi")) {
-            ageFilter = new RowFilter<TableModel, Object>() {
-                @Override
-                public boolean include(Entry<? extends TableModel, ? extends Object> entry) {
-                    String birth = (String) entry.getValue(4);
-                    if (birth == null || birth.isEmpty()) return false;
-                    try {
-                        int year = Integer.parseInt(birth.substring(0, 4));
-                        int age = java.time.LocalDate.now().getYear() - year;
-                        switch (selectedAge) {
-                            case "16 - 25": return age >= 16 && age <= 25;
-                            case "26 - 40": return age >= 26 && age <= 40;
-                            case "41 - 55": return age >= 41 && age <= 55;
-                            case "56 - 65": return age >= 56 && age <= 65;
-                            default: return true;
-                        }
-                    } catch (Exception ex) {
-                        return false;
-                    }
-                }
-            };
-        }
-        if (selectedType != null && !selectedType.equals("Loại hình")) {
-            // Cột loại hình là cột 2 (Nhân viên), kiểm tra có chứa "Nhân viên chính thức" hoặc "Thử việc"
-            typeFilter = new RowFilter<TableModel, Object>() {
-                @Override
-                public boolean include(Entry<? extends TableModel, ? extends Object> entry) {
-                    String value = (String) entry.getValue(2);
-                    if (value == null) return false;
-                    if (selectedType.equals("Chính thức")) {
-                        // Chỉ lọc đúng "Nhân viên chính thức"
-                        return value.contains("Nhân viên chính thức");
-                    } else if (selectedType.equals("Thử việc")) {
-                        return value.contains("Nhân viên thử việc");
-                    }
-                    return false;
-                }
-            };
-        }
-        if (selectedSalary != null && !selectedSalary.equals("Mức lương")) {
-            salaryFilter = new RowFilter<TableModel, Object>() {
-                @Override
-                public boolean include(Entry<? extends TableModel, ? extends Object> entry) {
-                    String salaryStr = (String) entry.getValue(9);
-                    if (salaryStr == null || salaryStr.isEmpty()) return false;
-                    try {
-                        // Chuyển "18,375,000" thành số
-                        int salary = Integer.parseInt(salaryStr.replace(",", "").replace(".", ""));
-                        switch (selectedSalary) {
-                            case "10M - 20M": return salary >= 10_000_000 && salary <= 20_000_000;
-                            case "20M - 30M": return salary > 20_000_000 && salary <= 30_000_000;
-                            case "30M - 40M": return salary > 30_000_000 && salary <= 40_000_000;
-                            default: return true;
-                        }
-                    } catch (Exception ex) {
-                        return false;
-                    }
-                }
-            };
-        }
-
-        java.util.List<RowFilter<TableModel, Object>> filters = new java.util.ArrayList<>();
-        if (deptFilter != null) filters.add(deptFilter);
-        if (genderFilter != null) filters.add(genderFilter);
-        if (ageFilter != null) filters.add(ageFilter);
-        if (typeFilter != null) filters.add(typeFilter);
-        if (salaryFilter != null) filters.add(salaryFilter);
-
-        if (filters.isEmpty()) {
-            sorter.setRowFilter(null);
-        } else if (filters.size() == 1) {
-            sorter.setRowFilter(filters.get(0));
-        } else {
-            sorter.setRowFilter(RowFilter.andFilter(filters));
+    private void loadEmployeesFromDatabase() {
+        model.setRowCount(0);
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                 "SELECT e.EmployeeCode, e.FirstName, e.LastName, e.Gender, e.BirthDate, e.Address, e.Phone, d.TenPhongBan, p.PositionName, e.Status, c.Salary " +
+                 "FROM Employees e " +
+                 "INNER JOIN Contracts c ON e.EmployeeCode = c.EmployeeCode " +
+                 "LEFT JOIN Departments d ON e.DepartmentId = d.Id " +
+                 "LEFT JOIN Positions p ON e.PositionId = p.Id"
+             );
+             ResultSet rs = ps.executeQuery()) {
+            int stt = 1;
+            while (rs.next()) {
+                String maNV = rs.getString("EmployeeCode");
+                String tenNV = rs.getString("FirstName") + " " + rs.getString("LastName");
+                String gioiTinh = rs.getString("Gender");
+                String ngaySinh = rs.getString("BirthDate");
+                String diaChi = rs.getString("Address");
+                String lienHe = rs.getString("Phone");
+                String phongBan = rs.getString("TenPhongBan");
+                String chucVu = rs.getString("PositionName");
+                String loaiHinh = rs.getString("Status");
+                String mucLuong = rs.getString("Salary") != null ? String.format("%,.0f", rs.getDouble("Salary")) : "";
+                Icon avatarIcon = new ImageIcon(new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB));
+                model.addRow(new Object[]{
+                    String.format("%03d", stt++),
+                    avatarIcon,
+                    "<html><b>" + maNV + " - " + tenNV + "</b><br>Nhân viên " + (loaiHinh != null ? loaiHinh : "") + "</html>",
+                    gioiTinh,
+                    ngaySinh,
+                    diaChi,
+                    lienHe,
+                    phongBan,
+                    chucVu,
+                    mucLuong
+                });
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu nhân viên: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 

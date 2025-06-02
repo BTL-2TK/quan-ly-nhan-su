@@ -50,8 +50,8 @@ public class ForgotPasswordFrame extends JFrame {
         add(panel);
 
         // Thêm sự kiện nút
-        submitButton.addActionListener(e -> handleForgotPassword());
-        cancelButton.addActionListener(e -> dispose());
+        submitButton.addActionListener(_ -> handleForgotPassword());
+        cancelButton.addActionListener(_ -> dispose());
     }
 
     private void handleForgotPassword() {

@@ -4,13 +4,17 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import utils.DatabaseUtils;
 
 public class HomePanel extends JPanel {
     public HomePanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
 
-        // Panel thông tin công ty
+        // Panel thông tin công ty (vẫn giữ dữ liệu mẫu hoặc có thể lấy từ DB nếu muốn)
         JPanel companyInfoPanel = new JPanel(new BorderLayout());
         companyInfoPanel.setBorder(BorderFactory.createTitledBorder("Thông tin công ty"));
         companyInfoPanel.setBackground(Color.WHITE);
@@ -25,7 +29,6 @@ public class HomePanel extends JPanel {
             {"Mã số thuế", "0312345678"},
             {"Website", "www.abc.com"}
         };
-
         DefaultTableModel companyModel = new DefaultTableModel(companyData, companyColumns) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -89,14 +92,7 @@ public class HomePanel extends JPanel {
         specialRolePanel.setBackground(Color.WHITE);
 
         String[] specialColumns = {"Họ tên", "Chức vụ", "Phòng ban", "Email", "Số điện thoại"};
-        Object[][] specialData = {
-            {"Nguyễn Văn A", "Giám đốc", "Ban Giám đốc", "a.nguyen@abc.com", "0901234567"},
-            {"Trần Thị B", "Trưởng phòng Nhân sự", "Phòng Nhân sự", "b.tran@abc.com", "0902345678"},
-            {"Lê Văn C", "Trưởng phòng Kỹ thuật", "Phòng Kỹ thuật", "c.le@abc.com", "0903456789"},
-            {"Phạm Thị D", "Trưởng phòng Kinh doanh", "Phòng Kinh doanh", "d.pham@abc.com", "0904567890"}
-        };
-
-        DefaultTableModel specialModel = new DefaultTableModel(specialData, specialColumns) {
+        DefaultTableModel specialModel = new DefaultTableModel(specialColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -144,7 +140,7 @@ public class HomePanel extends JPanel {
             }
         };
 
-        specialTable.setEnabled(false); // Không cho chỉnh sửa
+        specialTable.setEnabled(false);
         specialTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         specialTable.setRowHeight(24);
         specialTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -158,5 +154,47 @@ public class HomePanel extends JPanel {
         add(Box.createVerticalStrut(20));
         add(specialRolePanel);
         add(Box.createVerticalGlue());
+
+        // Load dữ liệu các vị trí đặc biệt từ database
+        loadSpecialEmployees(specialModel);
+    }
+
+    private void loadSpecialEmployees(DefaultTableModel model) {
+        // Danh sách chức vụ đặc biệt, bạn có thể mở rộng thêm
+        String[] specialPositions = {
+            "Giám đốc", "Trưởng phòng Nhân sự", "Trưởng phòng Kỹ thuật", "Trưởng phòng Kinh doanh"
+        };
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < specialPositions.length; i++) {
+            placeholders.append("?");
+            if (i < specialPositions.length - 1) placeholders.append(",");
+        }
+        String sql =
+            "SELECT e.FirstName + ' ' + e.LastName AS HoTen, p.PositionName, d.TenPhongBan, e.Email, e.Phone " +
+            "FROM Employees e " +
+            "LEFT JOIN Departments d ON e.DepartmentId = d.Id " +
+            "LEFT JOIN Positions p ON e.PositionId = p.Id " +
+            "WHERE p.PositionName IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < specialPositions.length; i++) {
+                ps.setString(i + 1, specialPositions[i]);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.addRow(new Object[] {
+                        rs.getString("HoTen"),
+                        rs.getString("PositionName"),
+                        rs.getString("TenPhongBan"),
+                        rs.getString("Email"),
+                        rs.getString("Phone")
+                    });
+                }
+            }
+        } catch (Exception ex) {
+            // Nếu lỗi, có thể hiển thị thông báo hoặc để bảng rỗng
+            ex.printStackTrace();
+        }
     }
 }

@@ -55,9 +55,9 @@ public class LoginFrame extends JPanel {
         bottomPanel.add(forgotPasswordButton);
         add(bottomPanel, gbc);
 
-        loginButton.addActionListener(e -> attemptLogin());
-        cancelButton.addActionListener(e -> System.exit(0));
-        forgotPasswordButton.addActionListener(e -> {
+        loginButton.addActionListener(_ -> attemptLogin());
+        cancelButton.addActionListener(_ -> System.exit(0));
+        forgotPasswordButton.addActionListener(_ -> {
             JOptionPane.showMessageDialog(this,
                     "Vui lòng liên hệ quản trị viên để lấy lại mật khẩu.",
                     "Quên mật khẩu",

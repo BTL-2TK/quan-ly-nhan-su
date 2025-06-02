@@ -21,8 +21,6 @@ public class WelcomeFrame extends JFrame {
     private JLabel registerLabel;
     private JLabel forgotPasswordLabel;
     private JLabel subtitleLabel;
-    private Timer breathingTimer;
-    private boolean breathingIn = true;
     // Thêm biến cho hiệu ứng đánh máy
     private Timer typingTimer;
     private String typingText = "To the best HR Management System";
@@ -323,8 +321,8 @@ public class WelcomeFrame extends JFrame {
             }
         });
 
-        loginButton.addActionListener(evt -> handleLogin());
-        testButton.addActionListener(event -> {
+        loginButton.addActionListener(_ -> handleLogin());
+        testButton.addActionListener(_ -> {
             try {
                 MainFrame mainFrame = new MainFrame("USER");
                 mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Fullscreen
@@ -499,7 +497,7 @@ public class WelcomeFrame extends JFrame {
         cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         registerDialog.add(cancelButton);
 
-        registerButton.addActionListener(e -> {
+        registerButton.addActionListener(_ -> {
             String newUsername = usernameInput.getText().trim();
             String newEmail = emailInput.getText().trim();
             String newPassword = new String(passwordInput.getPassword());
@@ -544,7 +542,7 @@ public class WelcomeFrame extends JFrame {
             }
         });
 
-        cancelButton.addActionListener(e -> registerDialog.dispose());
+        cancelButton.addActionListener(_ -> registerDialog.dispose());
 
         registerDialog.setVisible(true);
     }

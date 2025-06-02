@@ -64,10 +64,10 @@ public class RegisterFrame extends JFrame {
         add(panel);
 
         // Sự kiện nút Hủy
-        cancelButton.addActionListener(e -> dispose());
+        cancelButton.addActionListener(_ -> dispose());
 
         // Sự kiện nút Đăng ký
-        registerButton.addActionListener(e -> {
+        registerButton.addActionListener(_ -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());
             String email = emailField.getText().trim();
