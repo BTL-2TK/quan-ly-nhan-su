@@ -81,7 +81,7 @@ Các bước đóng góp:
 Dự án này được cấp phép theo [MIT License](LICENSE).
 
 # 📸 Hình ảnh minh họa
-![Ảnh minh họa](https://via.placeholder.com/800x400?text=Demo+Qu%E1%BA%A3n+L%C3%BD+Nh%C3%A2n+S%E1%BB%B1)
+![Ảnh minh họa](file:///C:/Users/FPT/OneDrive/M%C3%A1y%20t%C3%ADnh/Code/QuanLyNhanSu/img/Welcome.png)
 # 📞 Liên hệ
 Nếu bạn có câu hỏi hoặc góp ý, hãy liên hệ:
 
